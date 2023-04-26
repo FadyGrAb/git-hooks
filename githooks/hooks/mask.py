@@ -1,11 +1,12 @@
 import pathlib
 import re
 import subprocess
+import sys
 
 import toml
 
-from ..utils import PrettyOutput
 from ..exceptions import *
+from ..utils import PrettyOutput
 
 
 class MaskGitHook:
@@ -17,8 +18,10 @@ class MaskGitHook:
             self.configs = toml.load(config_file)
         except NoConfigurationFileFound as e:
             print(e)
+            sys.exit(1)
         except Exception as e:
             print(e)
+            sys.exit(1)
 
     def __get_modified_files(self) -> list[pathlib.Path]:
         cmd_str = "git diff-index --cached --name-only HEAD"
