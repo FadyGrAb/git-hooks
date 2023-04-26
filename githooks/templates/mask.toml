@@ -1,0 +1,6 @@
+[show]
+12345678 = 4
+asdirDkjcEDDcllsl = 0
+
+[ignore]
+files=["ignoreme.html", "ignoreme2.html"]
