@@ -24,27 +24,35 @@ cd git-hooks
 ```sh
 pip install .
 ```
-(After a successful installation, you can type `git-hooks --help` for more info.)  
+5. To show the tool's help, use
+```sh
+git-hooks --help
+```
+or 
+```sh
+git-hooks COMMAND --help
+```
+to show commands related help.  
 
-5. List the currently supported hooks 
+6. List the currently supported hooks 
 ```sh
 git-hooks list
 ```
 (currently only the `mask` hook is supported)  
 
-6. Initiate a hook with the `init` command.You must execute this inside a git repo. For the mask hook, This will create the *pre-commit* hook and the *mask.toml* inside your repo's `.git/hooks` directory.
+7. Initiate a hook with the `init` command.You must execute this inside a git repo. For the mask hook, This will create the *pre-commit* hook and the *mask.toml* inside your repo's `.git/hooks` directory.
 ```sh
 git-hooks init HOOK
 ```
-7. Disable a hook with the `disable` command. The hook must be initiated first.
+8. Disable a hook with the `disable` command. The hook must be initiated first.
 ```sh
 git-hooks disable HOOK
 ```
-8. Enable a hook with the `enable` command.
+9. Enable a hook with the `enable` command.
 ```sh
 git-hooks enable HOOK
 ```
-9.  Get the status of your hooks with the `status` command. The status is either *Enabled*, *Disabled* or *Not initialized*.
+10.  Get the status of your hooks with the `status` command. The status is either *Enabled*, *Disabled* or *Not initialized*.
 ```sh
 git-hooks status
 ```
