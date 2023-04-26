@@ -28,11 +28,10 @@ pip install .
 ```sh
 git-hooks --help
 ```
-or 
+or to show commands related help, use
 ```sh
 git-hooks COMMAND --help
 ```
-to show commands related help.  
 
 6. List the currently supported hooks 
 ```sh
