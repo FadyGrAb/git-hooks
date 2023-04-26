@@ -70,10 +70,13 @@ def init(hook: str) -> None:
 
     except NotSupportedHook as e:
         print(e)
+        sys.exit(1)
     except GitPathNotFound as e:
         print(e)
+        sys.exit(1)
     except Exception as e:
         print(e)
+        sys.exit(1)
 
 
 @cli.command()
