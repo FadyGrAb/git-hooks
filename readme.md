@@ -7,7 +7,7 @@ The ***pre-commit*** hook is run first, before you even type in a commit message
 
 ## Currently Supported Hooks:
 - **mask**: A check that is run before a git `git commit` command to mask the user's pre-defined sensitive data.
-- (more yet are to come 😉)
+- (more are yet to come 😉)
 
 
 ## Setup and usage:
