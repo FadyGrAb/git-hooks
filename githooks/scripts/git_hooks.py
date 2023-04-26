@@ -105,7 +105,7 @@ def disable(hook: str) -> None:
         else:
             print(
                 PrettyOutput.warning(
-                    "Mak git hook is not initiated. Nothing will happen."
+                    "Mask git hook is not initiated. Nothing will happen."
                 )
             )
     else:
@@ -127,7 +127,7 @@ def enable(hook: str) -> None:
         else:
             print(
                 PrettyOutput.warning(
-                    "Mak git hook is not initiated or already enabled. Nothing will happen."
+                    "Mask git hook is not initiated or already enabled. Nothing will happen."
                 )
             )
     else:
