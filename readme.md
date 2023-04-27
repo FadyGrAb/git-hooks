@@ -66,11 +66,11 @@ The script will check only the modified files. If it finds data that needs to be
 
 #### Mask.toml structure:
 ```toml
-[show]                  # The sensitive data you want to mask.
-1234565678 = 4            # This will show only the last 4 characters i.e. "****5678"
-lksjdfljalkjdfllkjsa = 0   # This will show 0 characters i.e. full mask "********************"
+[show]                      # The sensitive data you want to mask.
+1234565678 = 4              # This will show only the last 4 characters i.e. "****5678"
+lksjdfljalkjdfllkjsa = 0    # This will show 0 characters i.e. full mask "********************"
 
-[ignore]                # The list of files to ignore
+[ignore]                    # The list of files to ignore
 files=["ignoreme.html", "ignoreme2.html"]
 ```
 You write your piece of sensitive data in the [show] table and specify how many characters you want to show from it (from the right). If you write 0, it will be a full mask.  
@@ -114,8 +114,17 @@ files=[]
     "MySecretKey": "************************"
 }
 ```
+## Testing:
+The test scripts are using the *pytest* package. to install it:
+```sh
+pip install pytest
+```
+To run the tests:
+```sh
+pytest -v ./tests
+```
 ## Things to consider:
-- This tool is os agnostic.
+- This tool is developed on a windows machine and supposed to be os agnostic. I did't fully test it on other OSs.
 - This script lacks proper exception handling (for now) so please don't strain it too much :)
 - To disable this script, just rename it or add a file extension to it.
 - You can add the full path of a file to be ignored in the [ignore] table starting from your project's root directory.
