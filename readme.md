@@ -65,7 +65,7 @@ The script will check only the modified files. If it finds data that needs to be
  You don't have to put any files in the `.git/hooks` directory, the cli tool will do it for you.
 
 #### Mask.conig structure:
-```toml
+```
 [show]                      # The sensitive data you want to mask.
 1234565678 = 4              # This will show only the last 4 characters i.e. "****5678"
 lksjdfljalkjdfllkjsa = 0    # This will show 0 characters i.e. full mask "********************"
@@ -92,7 +92,7 @@ cd my-project
 2. Run `git init` in this directory. Notice the new `.git` directory that is created.
 3. Run `git-hooks init mask`. 
 4. Edit the "***mask.config***" as follows (located in your repo's root directory):
-```toml
+```
 [show]
 123456789 = 4            
 00f0264d065dd4ee7922dfe6 = 0
