@@ -123,7 +123,7 @@ files=[]
 ## Further work to be done:
 - [ ] Proper exception handling.
 - [x] Packaging.
-- [ ] Testing.
+- [x] Testing.
 - [ ] Add more features to mask.toml.
 
 
