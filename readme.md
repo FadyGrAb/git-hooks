@@ -39,7 +39,7 @@ git-hooks list
 ```
 (currently only the `mask` hook is supported)  
 
-7. Initiate a hook with the `init` command.You must execute this inside a git repo. For the mask hook, This will create the *pre-commit* hook and the *mask.toml* inside your repo's `.git/hooks` directory.
+7. Initiate a hook with the `init` command.You must execute this inside a git repo. For the mask hook, This will create the *pre-commit* hook and the *mask.toml* inside your repo's `.git/hooks` directory and add *\_unmasked_\**. to your *.gitignore* file.
 ```sh
 git-hooks init HOOK
 ```
@@ -60,13 +60,15 @@ git-hooks status
 When I commit code to public repos, I usually mask my sensitive data manually which is not practical nor scalable. So I needed a way to automate that at each git commit.
 
 #### Implementation details:
-It's actually a straight forward process, you put the "***pre-commit***" script in your project's `.git/hooks` directory (usually at your project's root) accompanied by "***mask.toml***" config file which is basically telling the script *what* and *how* to mask your data with an optional *ignore* files list that won't be skipped from the checks. The script will check only the modified files. You don't have to put any files in the `.git/hooks` directory, the cli tool will do it for you.
+It's actually a straight forward process, the "***pre-commit***" script in your project's `.git/hooks` directory (usually at your project's root) will read the "***mask.toml***" config file which is basically telling the script *what* and *how* to mask your data with an optional *ignore* files list that won't be skipped from the checks.  
+The script will check only the modified files. If it finds data that needs to be masked, it will make a copy of original unmasked file adding the "*\_unmasked\_\*" prefix to the file name in the same directory and then mask the original. That way you will always have access to the unmasked data which is ignored by git as the "\_unmasked\_\*" entry is already in *.gitignore*.  
+ You don't have to put any files in the `.git/hooks` directory, the cli tool will do it for you.
 
 #### Mask.toml structure:
 ```toml
 [show]                  # The sensitive data you want to mask.
-12345678 = 4            # This will show only the last 4 characters i.e. "****5678"
-asdirDkjcEDDcllsl = 0   # This will show 0 characters i.e. full mask "******************"
+****5678 = 4            # This will show only the last 4 characters i.e. "****5678"
+***************** = 0   # This will show 0 characters i.e. full mask "******************"
 
 [ignore]                # The list of files to ignore
 files=["ignoreme.html", "ignoreme2.html"]
@@ -90,8 +92,8 @@ cd my-project
 4. Edit the "***mask.toml***" as follows (located in `.git/hooks`):
 ```toml
 [show]
-123456789104 = 4            
-asdirDkjcEDDcllsllksjdfoiiEDSfkk = 0
+****56789104 = 4            
+*****************lksjdfoiiEDSfkk = 0
 
 [ignore]
 files=[]
@@ -99,13 +101,13 @@ files=[]
 5. Add the following file (config.json) to your project's root directory:
 ```json
 {
-    "MyAccountNumber": "123456789104",
-    "MySecretKey": "asdirDkjcEDDcllsllksjdfoiiEDSfkk"
+    "MyAccountNumber": "****56789104",
+    "MySecretKey": "*****************lksjdfoiiEDSfkk"
 }
 ```
 6. Run `git add .`
 7. Commit your changes `git commit -m "mask commit"`
-8. After the commit you will get the a message for every file that had sensitive data that were masked. If you didn't receive any, then there aren't any masking operations that were done. Your file will be as follows:
+8. After the commit you will get the a message for every file that was processed If you didn't receive any, then none contained sensitive data matching your configuration. Your file will be as follows:
 ```json
 {
     "MyAccountNumber": "*********9104",

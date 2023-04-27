@@ -50,16 +50,17 @@ class MaskGitHook:
             PrettyOutput.info("[MASK GITHOOK] There aren't any modified files.")
         else:
             for file in modified_files:
-                file_content = self.__read_file(file)
-                # original_hash = hash(file_content)
+                try:
+                    file_content = self.__read_file(file)
+                except FileNotFoundError:
+                    continue
+
                 original_content = file_content
 
                 for mask_key, show_char_count in self.configs["show"].items():
                     mask_stop = len(mask_key) - show_char_count
                     replacement = ("*" * mask_stop) + mask_key[mask_stop:]
                     file_content = re.sub(mask_key, replacement, file_content)
-
-                # current_hash = hash(file_content)
 
                 if original_content != file_content:
                     shutil.copy2(file, file.parent / ("_unmasked_" + file.name))
