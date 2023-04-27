@@ -63,23 +63,41 @@ def init(hook: str) -> None:
                 script.writelines(code)
             print(PrettyOutput.info(f"pre-commit is created in {hooks_dir}"))
 
-            # mask.toml file
+            # mask.config file
             config_toml = templates_dir / "mask.config"
-            shutil.copy2(config_toml, repo_root_dir)
-            print(PrettyOutput.info(f"mask.config is created in {repo_root_dir}"))
+            if not (repo_root_dir / "mask.config").exists():
+                shutil.copy2(config_toml, repo_root_dir)
+                print(PrettyOutput.info(f"mask.config is created in {repo_root_dir}"))
+            else:
+                print(
+                    PrettyOutput.info(
+                        f"mask.config already exists in {repo_root_dir}. Skipping creation."
+                    )
+                )
 
             # Add _unmasked_* to .gitignore
             gitignore = repo_root_dir / ".gitignore"
+            content = ""
             if gitignore.exists():
                 with gitignore.open(mode="r") as f:
                     content = f.read()
 
-            gitignore_handles = ["_unmasked_*", "/mask.config"]
-            for handle in gitignore_handles:
-                if (not handle in content) or (not gitignore.exists()):
-                    with gitignore.open(mode="a") as f:
-                        f.write(f"\n{handle}")
-                        print(PrettyOutput.info(f"'{handle}' added to gitignore."))
+            if ("_unmasked_*" not in content) or (not gitignore.exists()):
+                with gitignore.open(mode="a") as f:
+                    f.write(f"\n_unmasked_*")
+                    print(PrettyOutput.info("'_unmasked_*' was added to gitignore."))
+                    f.write(f"/mask.config")
+                    print(PrettyOutput.info("'/mask.config' was added to gitignore."))
+            elif ("_unmasked_*" in content) and ("/mask.config" not in content):
+                print(
+                    PrettyOutput.warning(
+                        """\
+                        ******************************************************************
+                        /mask.config is NOT in .gitignore. Your secrets will be committed.
+                        If you do not want that, add it manually to .gitignore.
+                        ******************************************************************"""
+                    )
+                )
 
             print(
                 PrettyOutput.success(
