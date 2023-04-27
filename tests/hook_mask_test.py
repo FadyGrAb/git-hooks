@@ -4,8 +4,8 @@ import pathlib
 import shutil
 import subprocess
 
-import pytest
 import toml
+from clean_up import cleanup
 
 
 def test_init_mask():
@@ -90,7 +90,9 @@ def test_exec_mask():
     except Exception as e:
         if test_files_path.exists():
             shutil.rmtree(test_files_path)
+        cleanup()
         raise e
     finally:
         if test_files_path.exists():
             shutil.rmtree(test_files_path)
+        cleanup()
