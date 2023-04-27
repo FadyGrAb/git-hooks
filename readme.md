@@ -67,8 +67,8 @@ The script will check only the modified files. If it finds data that needs to be
 #### Mask.toml structure:
 ```toml
 [show]                  # The sensitive data you want to mask.
-****5678 = 4            # This will show only the last 4 characters i.e. "****5678"
-***************** = 0   # This will show 0 characters i.e. full mask "******************"
+1234565678 = 4            # This will show only the last 4 characters i.e. "****5678"
+lksjdfljalkjdfllkjsa = 0   # This will show 0 characters i.e. full mask "********************"
 
 [ignore]                # The list of files to ignore
 files=["ignoreme.html", "ignoreme2.html"]
