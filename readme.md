@@ -92,8 +92,8 @@ cd my-project
 4. Edit the "***mask.toml***" as follows (located in `.git/hooks`):
 ```toml
 [show]
-****56789104 = 4            
-*****************lksjdfoiiEDSfkk = 0
+123456789 = 4            
+00f0264d065dd4ee7922dfe6 = 0
 
 [ignore]
 files=[]
@@ -101,8 +101,8 @@ files=[]
 5. Add the following file (config.json) to your project's root directory:
 ```json
 {
-    "MyAccountNumber": "****56789104",
-    "MySecretKey": "*****************lksjdfoiiEDSfkk"
+    "MyAccountNumber": "123456789",
+    "MySecretKey": "00f0264d065dd4ee7922dfe6"
 }
 ```
 6. Run `git add .`
@@ -110,8 +110,8 @@ files=[]
 8. After the commit you will get the a message for every file that was processed If you didn't receive any, then none contained sensitive data matching your configuration. Your file will be as follows:
 ```json
 {
-    "MyAccountNumber": "*********9104",
-    "MySecretKey": "********************************"
+    "MyAccountNumber": "*****6789",
+    "MySecretKey": "************************"
 }
 ```
 ## Things to consider:
