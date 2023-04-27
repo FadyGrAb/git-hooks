@@ -1,4 +1,5 @@
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
@@ -65,6 +66,18 @@ def init(hook: str) -> None:
             config_toml = templates_dir / "mask.toml"
             shutil.copy2(config_toml, hooks_dir)
             print(PrettyOutput.info(f"mask.toml is created in {hooks_dir}"))
+
+            # Add _unmasked_* to .gitignore
+            gitignore = get_current_repo_git_path().parent / ".gitignore"
+            match = None
+            if gitignore.exists():
+                with gitignore.open(mode="r") as f:
+                    match = re.search("_unmasked_\*", f.read())
+
+            if (not match) or (not gitignore.exists()):
+                with gitignore.open(mode="a") as f:
+                    f.write("\n# Mask git hook\n_unmasked_*")
+                    print(PrettyOutput.info(f"'_unmasked_* added to gitignore."))
 
             print(PrettyOutput.success("Mask git hook is initiated successfully."))
 
