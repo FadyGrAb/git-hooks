@@ -44,6 +44,11 @@ class MaskGitHook:
         with file.open(mode="w") as f:
             f.write(content)
 
+    @staticmethod
+    def __mask_data(key: str, show_char: int) -> str:
+        mask_stop = len(key) - show_char
+        return ("*" * mask_stop) + key[mask_stop:]
+
     def mask(self) -> None:
         modified_files = self.__get_modified_files()
         if len(modified_files) == 0:
@@ -54,12 +59,15 @@ class MaskGitHook:
                     file_content = self.__read_file(file)
                 except FileNotFoundError:
                     continue
+                except PermissionError:
+                    continue
 
                 original_content = file_content
 
                 for mask_key, show_char_count in self.configs["show"].items():
-                    mask_stop = len(mask_key) - show_char_count
-                    replacement = ("*" * mask_stop) + mask_key[mask_stop:]
+                    # mask_stop = len(mask_key) - show_char_count
+                    # replacement = ("*" * mask_stop) + mask_key[mask_stop:]
+                    replacement = self.__mask_data(mask_key, show_char_count)
                     file_content = re.sub(mask_key, replacement, file_content)
 
                 if original_content != file_content:

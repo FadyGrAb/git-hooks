@@ -20,7 +20,7 @@ def get_current_repo_git_path() -> pathlib.Path:
     return pathlib.Path(cmd_git_dir) / ".git"
 
 
-supported_hooks = ["mask"]
+supported_hooks = ["mask", "test"]
 
 
 @click.group()
@@ -38,9 +38,6 @@ def init(hook: str) -> None:
     Currently the 'hook' arg can take only 'mask' value.
     """
     try:
-        if hook.lower() not in supported_hooks:
-            raise NotSupportedHook(hook=hook)
-
         templates_dir = pathlib.Path(__file__).parents[1] / "templates"
         git_dir = get_current_repo_git_path()
         hooks_dir = git_dir / "hooks"
@@ -80,6 +77,15 @@ def init(hook: str) -> None:
                     print(PrettyOutput.info(f"'_unmasked_* added to gitignore."))
 
             print(PrettyOutput.success("Mask git hook is initiated successfully."))
+        elif hook.lower() == "test":
+            sys.exit(0)
+        else:
+            print(
+                PrettyOutput.error(
+                    f"This hook is not supported: {hook}. Type 'git-hooks list' for the full list."
+                )
+            )
+            sys.exit(1)
 
     except NotSupportedHook as e:
         print(e)
@@ -99,8 +105,15 @@ def exec(hook: str) -> None:
     if hook.lower() == "mask":
         masker = MaskGitHook(get_current_repo_git_path())
         masker.mask()
+    elif hook.lower() == "test":
+        sys.exit(0)
     else:
-        print(PrettyOutput.error(f"This hook is not supported: {hook}"))
+        print(
+            PrettyOutput.error(
+                f"This hook is not supported: {hook}. Type 'git-hooks list' for the full list."
+            )
+        )
+        sys.exit(1)
 
 
 @cli.command()
@@ -121,8 +134,15 @@ def disable(hook: str) -> None:
                     "Mask git hook is not initiated. Nothing will happen."
                 )
             )
+    elif hook.lower() == "test":
+        sys.exit(0)
     else:
-        print(PrettyOutput.error(f"This hook is not supported: {hook}"))
+        print(
+            PrettyOutput.error(
+                f"This hook is not supported: {hook}. Type 'git-hooks list' for the full list."
+            )
+        )
+        sys.exit(1)
 
 
 @cli.command()
@@ -143,15 +163,22 @@ def enable(hook: str) -> None:
                     "Mask git hook is not initiated or already enabled. Nothing will happen."
                 )
             )
+    elif hook.lower() == "test":
+        sys.exit(0)
     else:
-        print(PrettyOutput.error(f"This hook is not supported: {hook}"))
+        print(
+            PrettyOutput.error(
+                f"This hook is not supported: {hook}. Type 'git-hooks list' for the full list."
+            )
+        )
+        sys.exit(1)
 
 
 @cli.command()
 def list():
     """Lists currently supported git hooks"""
     print("Currently supported hooks:")
-    for idx, hook in enumerate(supported_hooks):
+    for idx, hook in enumerate(filter(lambda x: x != "test", supported_hooks)):
         print(str(idx + 1).rjust(2) + "- " + hook)
 
 
