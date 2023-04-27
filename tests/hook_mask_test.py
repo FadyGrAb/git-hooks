@@ -1,4 +1,5 @@
 import json
+import os
 import pathlib
 import shutil
 import subprocess
@@ -11,13 +12,15 @@ def test_init_mask():
     root_path = pathlib.Path(__file__).parents[1]
     subprocess.run("git-hooks init mask", shell=True)
     pre_commit_script = root_path / ".git/hooks/pre-commit"
-    config_toml = root_path / ".git/hooks/mask.toml"
+    mask_config = root_path / "mask.config"
     gitignore = root_path / ".gitignore"
 
     assert pre_commit_script.exists() == True
-    assert config_toml.exists() == True
+    assert mask_config.exists() == True
     with gitignore.open(mode="r") as f:
-        assert "_unmasked_*" in f.read()
+        content = f.read()
+        assert "_unmasked_*" in content
+        assert "/mask.config" in content
 
 
 def test_exec_mask():
@@ -28,16 +31,22 @@ def test_exec_mask():
     test_files_path.mkdir(exist_ok=True)
 
     # Load test configs
-    config_toml = root_path / ".git/hooks/mask.toml"
+    mask_config = root_path / "mask.config"
+    os.environ["ENV_VAR_1"] = "myEnvVar_1"
+    os.environ["ENV_VAR_2"] = "myEnvVar_2"
+
     test_configs = {
         "show": {
             "123456789023423": 5,
             "lkjsdkfjsdlkvouoeijlsdljlsajfdl": 0,
             "my@email.com": 8,
+            "{{ ENV_VAR_1 }}": 5,
+            "{{ ENV_VAR_2 }}": 6,
+            "{{ ENV_VAR_3 }}": 5,  # Not set
         },
         "ignore": {"files": ["tests/test_files/ignoreme1", "tests/hook_mask_test.py"]},
     }
-    with config_toml.open(mode="w") as toml_file:
+    with mask_config.open(mode="w") as toml_file:
         toml.dump(test_configs, toml_file)
 
     # Create test files
@@ -50,11 +59,15 @@ def test_exec_mask():
         "AccountID": "123456789023423",
         "AccountKey": "lkjsdkfjsdlkvouoeijlsdljlsajfdl",
         "AccountEmail": "my@email.com",
+        "MySecretValue1": "myEnvVar_1",
+        "MySecretValue2": "myEnvVar_2",
     }
     masked_data = {
         "AccountID": "**********23423",
         "AccountKey": "*******************************",
         "AccountEmail": "****mail.com",
+        "MySecretValue1": "*****Var_1",
+        "MySecretValue2": "****vVar_2",
     }
     for file in test_files:
         with (root_path / file).open(mode="w") as f:

@@ -1,3 +1,4 @@
+import os
 import pathlib
 import re
 import shutil
@@ -5,24 +6,41 @@ import subprocess
 import sys
 
 import toml
+from jinja2 import Environment, FileSystemLoader, meta
 
 from ..exceptions import *
 from ..utils import PrettyOutput
 
 
 class MaskGitHook:
-    def __init__(self, git_dir: pathlib.Path) -> None:
+    def __init__(self, root_dir: pathlib.Path) -> None:
+        self.root_dir = root_dir
         try:
-            config_file = git_dir / "hooks/mask.toml"
-            if not config_file.exists():
-                raise NoConfigurationFileFound()
-            self.configs = toml.load(config_file)
-        except NoConfigurationFileFound as e:
-            print(e)
+            self.configs = toml.loads(self.__render_toml_template())
+        except toml.decoder.TomlDecodeError as e:
+            print(PrettyOutput.error("[mask.config] " + e.__str__()))
+            print(PrettyOutput.error("Please revise your mask.config"))
             sys.exit(1)
-        except Exception as e:
-            print(e)
-            sys.exit(1)
+
+    def __render_toml_template(self) -> str:
+        jinja_env = Environment(loader=FileSystemLoader(str(self.root_dir)))
+        parsed_template = jinja_env.parse(
+            jinja_env.loader.get_source(jinja_env, "mask.config")
+        )
+        vars = meta.find_undeclared_variables(parsed_template)
+        env_vars = {var: os.environ.get(var, None) for var in vars}
+        for var, value in env_vars.items():
+            if not value:
+                print(
+                    PrettyOutput.warning(
+                        f"Env. variable '{var}' in mask.config is not set."
+                    )
+                )
+        env_vars = {var: value for var, value in env_vars.items() if value}
+        template = jinja_env.get_template("mask.config")
+        result = template.render(env_vars)
+        result = re.sub(r"\n\s+=.*\n?", "\n", result)
+        return result
 
     def __get_modified_files(self) -> list[pathlib.Path]:
         cmd_str = "git diff-index --cached --name-only HEAD"
