@@ -96,8 +96,7 @@ class MaskGitHook:
                     # Write a .masked file
                     masked_file = file.parent / ".masked"
                     mode = "w" if masked_file.exists() else "+r"
-                    with masked_file.open(mode) as f:
-                        print("======filemode", mode)
+                    with masked_file.open(mode=mode) as f:
                         if mode == "w":
                             f.write(file.name)
                         else:
