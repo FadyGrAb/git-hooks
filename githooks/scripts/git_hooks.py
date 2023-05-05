@@ -25,9 +25,7 @@ supported_hooks = ["mask", "test"]
 
 @click.group()
 def cli():
-    """A CLI tool to create a data masking git hook to mask the user's
-    predefined sensitive data before the git commit.
-    """
+    """A CLI tool to implement git hooks on git commits."""
     pass
 
 
@@ -132,11 +130,30 @@ def init(hook: str) -> None:
 
 @cli.command()
 @click.argument("hook")
-def exec(hook: str) -> None:
+@click.option(
+    "-r",
+    "--reverse",
+    is_flag=True,
+    default=False,
+    show_default=True,
+    help="Execute reverse hook operation if available",
+)
+@click.option(
+    "-f",
+    "--file",
+    default=None,
+    type=click.Path(exists=True),
+    help="Specify the file for the reverse operation (Mandatory if -r is set)",
+)
+def exec(hook: str, reverse: bool, file: pathlib.Path) -> None:
     """Executes the passed hook."""
     if hook.lower() == "mask":
         masker = MaskGitHook(get_current_repo_root_path())
-        masker.mask()
+        if not reverse:
+            masker.mask()
+        else:
+            masker.reverse_mask(file)
+
     elif hook.lower() == "test":
         sys.exit(0)
     else:
@@ -210,7 +227,8 @@ def enable(hook: str) -> None:
 def list():
     """Lists currently supported git hooks"""
     print("Currently supported hooks:")
-    for idx, hook in enumerate(filter(lambda x: x != "test", supported_hooks)):
+    hooks = [hook for hook in supported_hooks if (hook != "test")]
+    for idx, hook in enumerate(hooks):
         print(str(idx + 1).rjust(2) + "- " + hook)
 
 
