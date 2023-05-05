@@ -95,6 +95,7 @@ class MaskGitHook:
                     subprocess.run(f"git add {str(file)}", shell=True)
                     # Write a .masked file
                     masked_file = file.parent / ".masked"
+                    print(masked_file)
                     mode = "w" if masked_file.exists() else "+r"
                     print("-------------------", mode)
                     with masked_file.open(mode=mode) as f:
