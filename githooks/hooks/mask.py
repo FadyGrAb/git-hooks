@@ -80,6 +80,8 @@ class MaskGitHook:
                     continue
                 except PermissionError:
                     continue
+                except IsADirectoryError:
+                    continue
 
                 original_content = file_content
 
