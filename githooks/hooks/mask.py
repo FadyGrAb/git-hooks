@@ -128,10 +128,14 @@ class MaskGitHook:
                     mask_count = len(masked)
                     masked_secrets.move_to_end(masked, last=False)
 
-        with file.open("r") as f:
+        with file.open("+r") as f:
             content = f.read()
             new_content = content
             for masked, original in masked_secrets.items():
                 new_content = new_content.replace(masked, original)
+            if content != new_content:
+                f.seek(0)
+                f.write(new_content)
+                f.truncate()
 
-        print(new_content)
+        print(PrettyOutput.success(f"[SUCCESS] file {file.name} is unmasked."))
