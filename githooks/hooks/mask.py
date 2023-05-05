@@ -94,12 +94,17 @@ class MaskGitHook:
                     self.__write_file(file, file_content)
                     subprocess.run(f"git add {str(file)}", shell=True)
                     # Write a .masked file
-                    with (file.parent / ".masked").open("+r") as f:
-                        contents = f.read()
-                        if file.name not in contents:
-                            f.seek(0)
-                            f.write(contents.strip() + f"\n{file.name}")
-                            f.truncate()
+                    masked_file = file.parent / ".masked"
+                    mode = "w" if masked_file.exists() else "+r"
+                    with masked_file.open(mode) as f:
+                        if mode == "w":
+                            f.write(file.name)
+                        else:
+                            contents = f.read()
+                            if file.name not in contents:
+                                f.seek(0)
+                                f.write(contents.strip() + f"\n{file.name}")
+                                f.truncate()
 
                     print(
                         PrettyOutput.success(
