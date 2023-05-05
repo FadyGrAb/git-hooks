@@ -4,6 +4,7 @@ import re
 import shutil
 import subprocess
 import sys
+from collections import OrderedDict
 
 import toml
 from jinja2 import Environment, FileSystemLoader, meta
@@ -92,8 +93,40 @@ class MaskGitHook:
                     shutil.copy2(file, file.parent / ("_unmasked_" + file.name))
                     self.__write_file(file, file_content)
                     subprocess.run(f"git add {str(file)}", shell=True)
+                    # Write a .masked file
+                    with (file.parent / ".masked").open("+r") as f:
+                        contents = f.read()
+                        if file.name not in contents:
+                            f.seek(0)
+                            f.write(contents.strip() + f"\n{file.name}")
+                            f.truncate()
+
                     print(
                         PrettyOutput.success(
                             f"[MASK GITHOOK] Sensitive data were masked in: {file.absolute()}"
                         )
                     )
+
+    def reverse_mask(self, file: str):
+        file = pathlib.Path(file)
+        masked_secrets = OrderedDict(
+            [
+                (self.__mask_data(key, show), key)
+                for key, show in self.configs["show"].items()
+            ]
+        )
+        mask_count = 0
+        _masked_secrets = masked_secrets.copy()
+        for masked, original in _masked_secrets.items():
+            if all([c == "*" for c in masked]):
+                if len(masked) > mask_count:
+                    mask_count = len(masked)
+                    masked_secrets.move_to_end(masked, last=False)
+
+        with file.open("r") as f:
+            content = f.read()
+            new_content = content
+            for masked, original in masked_secrets.items():
+                new_content = new_content.replace(masked, original)
+
+        print(new_content)
