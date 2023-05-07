@@ -56,7 +56,7 @@ git-hooks enable HOOK
 ```sh
 git-hooks status
 ```
-11. Execute the hook in a "reverse" fashion (reverse its effect) by using the `-r/--reverse` option in the `exec` command. This operation must be on a single file therefore the `-f/--file` option must be used. The file must be previously affected by the hook for the reverse operation to work.
+11. Execute the hook in a "reverse" fashion (reverse its effect) by using the `-r/--reverse` option in the `exec` command. You can use the `-f/--file` option to target a single file with the hook effect. If the `-f/--file` option isn't specified, the hook will be reversed on all the files in the `.ghunmask` in the repo's root.
 ```sh
 git-hooks exec -rf /path/to/file HOOK
 ```
