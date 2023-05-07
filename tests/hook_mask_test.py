@@ -88,11 +88,43 @@ def test_exec_mask():
                 assert data == masked_data
                 assert (file_path.parent / ("_unmasked_" + file_path.name)).exists()
     except Exception as e:
+        print(e)
+        raise e
+
+
+def test_exec_reverse_mask():
+    root_path = pathlib.Path(__file__).parents[1]
+    test_files_path = root_path / "tests/test_files"
+
+    # Create test files
+    test_files = root_path / "tests/test_files/config.json"
+    test_data = {
+        "AccountID": "123456789023423",
+        "AccountKey": "lkjsdkfjsdlkvouoeijlsdljlsajfdl",
+        "AccountEmail": "my@email.com",
+        "MySecretValue1": "myEnvVar_1",
+        "MySecretValue2": "myEnvVar_2",
+    }
+
+    ghunmask_file = root_path / ".ghunmask"
+    with ghunmask_file.open("w") as f:
+        f.write(str(test_files.absolute()))
+
+    # Run reverse mask git-hook
+    subprocess.run("git add .", shell=True).check_returncode()
+    subprocess.run("git-hooks exec -r mask", shell=True).check_returncode()
+
+    try:
+        with test_files.open(mode="r") as f:
+            data = json.load(f)
+            print(data)
+            print(test_data)
+            assert data == test_data
+    except Exception as e:
         if test_files_path.exists():
             shutil.rmtree(test_files_path)
         cleanup()
         raise e
-    finally:
-        if test_files_path.exists():
-            shutil.rmtree(test_files_path)
-        cleanup()
+    if test_files_path.exists():
+        shutil.rmtree(test_files_path)
+    cleanup()

@@ -96,16 +96,16 @@ class MaskGitHook:
                     self.__write_file(file, file_content)
                     subprocess.run(f"git add {str(file)}", shell=True)
                     # Write a .masked file
-                    masked_file = file.parent / ".masked"
+                    masked_file = self.root_dir / ".ghunmask"
                     mode = "+r" if masked_file.exists() else "w"
                     with masked_file.open(mode=mode) as f:
                         if mode == "w":
-                            f.write(file.name)
+                            f.write(str(file.absolute()))
                         else:
                             contents = f.read()
                             if file.name not in contents:
                                 f.seek(0)
-                                f.write(contents.strip() + f"\n{file.name}")
+                                f.write(contents.strip() + f"\n{str(file.absolute())}")
                                 f.truncate()
 
                     print(
@@ -115,7 +115,6 @@ class MaskGitHook:
                     )
 
     def reverse_mask(self, file: str):
-        file = pathlib.Path(file)
         masked_secrets = OrderedDict(
             [
                 (self.__mask_data(key, show), key)
@@ -130,14 +129,37 @@ class MaskGitHook:
                     mask_count = len(masked)
                     masked_secrets.move_to_end(masked, last=False)
 
-        with file.open("+r") as f:
-            content = f.read()
-            new_content = content
-            for masked, original in masked_secrets.items():
-                new_content = new_content.replace(masked, original)
-            if content != new_content:
-                f.seek(0)
-                f.write(new_content)
-                f.truncate()
+        if not file:
+            ghunmask_file = self.root_dir / ".ghunmask"
+            if ghunmask_file.exists():
+                with ghunmask_file.open("r") as f:
+                    masked_files = [pathlib.Path(file) for file in f.readlines()]
+            else:
+                print(
+                    PrettyOutput.error(
+                        "[UNMASK] Can not find .ghunmask in repo root. use 'git-hooks exec -rf /path/to/file' mask instead."
+                    )
+                )
+                sys.exit(1)
+        else:
+            masked_files = [pathlib.Path(file)]
 
-        print(PrettyOutput.success(f"[SUCCESS] file {file.name} is unmasked."))
+        for mfile in masked_files:
+            try:
+                with mfile.open("+r") as f:
+                    content = f.read()
+                    new_content = content
+                    for masked, original in masked_secrets.items():
+                        new_content = new_content.replace(masked, original)
+                    if content != new_content:
+                        f.seek(0)
+                        f.write(new_content)
+                        f.truncate()
+                print(
+                    PrettyOutput.success(f"File {str(mfile.absolute())} is unmasked.")
+                )
+            except:
+                print(
+                    PrettyOutput.warning(f"Can not open file {str(mfile.absolute())}.")
+                )
+                continue
