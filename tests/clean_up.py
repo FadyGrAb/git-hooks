@@ -4,7 +4,9 @@ import pathlib
 
 def cleanup():
     subprocess.run("pip uninstall git-hooks -y")
-    mask_config = pathlib.Path(__file__).parents[1] / "mask.config"
-    mask_config.unlink()
-    pre_commit = pathlib.Path(__file__).parents[1] / ".git/hooks/pre-commit"
-    pre_commit.unlink()
+    files = [
+        pathlib.Path(file)
+        for file in [".ghunmask", "mask.config", ".git/hooks/pre-commit"]
+    ]
+    for file in files:
+        file.unlink()

@@ -84,7 +84,7 @@ def init(hook: str) -> None:
                 with gitignore.open(mode="a") as f:
                     f.write(f"\n_unmasked_*")
                     print(PrettyOutput.info("'_unmasked_*' was added to gitignore."))
-                    f.write(f"/mask.config")
+                    f.write(f"\n/mask.config")
                     print(PrettyOutput.info("'/mask.config' was added to gitignore."))
             elif ("_unmasked_*" in content) and ("/mask.config" not in content):
                 print(
@@ -143,7 +143,7 @@ def init(hook: str) -> None:
     "--file",
     default=None,
     type=click.Path(exists=True),
-    help="Specify the file for the reverse operation (Mandatory if -r is set)",
+    help="Specify the file for the reverse operation. If not specified, all files in the .ghunmask file will be unmasked",
 )
 def exec(hook: str, reverse: bool, file: pathlib.Path) -> None:
     """Executes the passed hook."""
