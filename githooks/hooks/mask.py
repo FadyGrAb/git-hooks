@@ -133,7 +133,9 @@ class MaskGitHook:
             ghunmask_file = self.root_dir / ".ghunmask"
             if ghunmask_file.exists():
                 with ghunmask_file.open("r") as f:
-                    masked_files = [pathlib.Path(file) for file in f.readlines()]
+                    masked_files = [
+                        pathlib.Path(file.strip()) for file in f.readlines()
+                    ]
             else:
                 print(
                     PrettyOutput.error(
