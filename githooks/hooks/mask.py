@@ -158,8 +158,9 @@ class MaskGitHook:
                 print(
                     PrettyOutput.success(f"File {str(mfile.absolute())} is unmasked.")
                 )
-            except:
+            except Exception as e:
                 print(
                     PrettyOutput.warning(f"Can not open file {str(mfile.absolute())}.")
                 )
+                print(e)
                 continue
