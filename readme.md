@@ -1,4 +1,5 @@
 # Git Hooks CLI tool for custom hooks
+A CLI too to implement git-hooks in a automated fashion. It uses the normal git hooks flow. A great tool when studying or attending boot-camps. The implemented `mask` hook will protect you from committing your predefined sensitive secrets to your Github repo.
 > This is still a proof of concept. I've created it for educational purposes. Further work is still needed.
 ## How git hooks work:
 When using git, it can execute scripts before and after some git commands. You can read all about them form [here](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks).  
@@ -54,6 +55,10 @@ git-hooks enable HOOK
 10.  Get the status of your hooks with the `status` command. The status is either *Enabled*, *Disabled* or *Not initialized*.
 ```sh
 git-hooks status
+```
+11. Execute the hook in a "reverse" fashion (reverse its effect) by using the `-r/--reverse` option in the `exec` command. This operation must be on a single file therefore the `-f/--file` option must be used. The file must be previously affected by the hook for the reverse operation to work.
+```sh
+git-hooks exec -rf /path/to/file HOOK
 ```
 ### The Mask Git-hook:
 #### Motivation:
@@ -143,6 +148,10 @@ pytest -v ./tests
 - To disable this script, just rename it or add a file extension to it.
 - You can add the full path of a file to be ignored in the [ignore] table starting from your project's root directory.
 - The `.git` directory isn't pushed to Github with a push, [check here](https://github.com/git-guides/git-push). So in theory, my sensitive data should be safe. But further research is needed.
+
+## Known issues:
+- For the ***mask*** hook, if there are 2 or more secrets with the same length that are completely masked (show = 0), then the ***reverse-masked*** operation might not return the correct value.
+
 ## Further work to be done:
 - [ ] Proper exception handling.
 - [x] Packaging.
